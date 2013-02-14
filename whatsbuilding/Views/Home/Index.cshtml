@@ -1,0 +1,81 @@
+﻿@using System.Configuration
+@model List<whatsbuilding.Models.BuildController>
+@{
+    ViewBag.Title = "Index";
+}
+<html>
+<head>
+    <link href="@Url.Content("~/Content/Site.css")" rel="stylesheet" type="text/css" />
+    <title>Current build queue</title>
+    <script type="text/javascript" src="/Scripts/jquery-1.8.3.js"></script>
+    <script type="text/javascript">
+        var remainingTime = 60;
+        $(document).ready(function() {
+            setTimeout('timedRefresh()', 1000);
+        });
+
+        function timedRefresh() {
+                $("#refreshText").text("This page will auto-refresh in " + remainingTime + " second(s).");
+                remainingTime--;
+            setTimeout('timedRefresh()', 1000);
+            };
+    </script>
+</head>
+<body class="page">
+    <fieldset>
+        @Html.DropDownList("Build controllers",
+                new SelectList(Model.Select(bc=>bc.Name).ToList()))
+
+        <legend style="color: white">Queued builds on tfs build controller "@Model[0].Name"
+            as of @DateTime.Now.ToShortTimeString()</legend>
+        <div style="color: white" id="refreshText">This page will auto-refresh in 60 second(s).</div>
+        <div>
+            @if(Model[0].Builds.Count() > 0) {
+                <table>
+                    <thead>
+                        <tr>
+                            <th>
+                                Position
+                            </th>
+                            <th>
+                                Project
+                            </th>
+                            <th>
+                                Build
+                            </th>
+                            <th>
+                                Status
+                            </th>
+                            <th>
+                                Queued
+                            </th>
+                            <th>
+                                Requested&nbsp;by
+                            </th>
+                        </tr>
+                    </thead>
+                    @foreach(var item in Model[0].Builds) {
+                        <tr style="color: white">
+                            <td>@item.Position
+                            </td>
+                            <td>@item.TeamProject
+                            </td>
+                            <td>@item.BuildDefinition
+                            </td>
+                            <td>@item.Status
+                            </td>
+                            <td>@item.QueuedAt
+                            </td>
+                            <td>@item.RequestedBy
+                            </td>
+                        </tr>
+                    }
+                </table>    
+            } else {
+                <p style="color: white">
+                    No builds currently queued.</p>
+            }
+        </div>
+    </fieldset>
+</body>
+</html>
